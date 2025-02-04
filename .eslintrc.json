@@ -95,5 +95,6 @@
       }
     }
   ],
-  "ignorePatterns": ["/packages/graphql/**/*.ts"]
+  "ignorePatterns": ["/packages/graphql/**/*.ts"],
+  "linebreak-style": ["error", "unix"]
 }
