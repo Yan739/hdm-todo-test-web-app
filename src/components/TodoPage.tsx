@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import useFetch from '../hooks/useFetch.ts';
 import { Task } from '../index';
 
+
 const TodoPage = () => {
   const api = useFetch();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -22,14 +23,21 @@ const TodoPage = () => {
   }
 
   const handleSave = async () => {
-    if (currentTask && taskName && taskName !== currentTask.name) {
-      // Sauvegarde en cas de modif
+    if (!currentTask || taskName.trim() === "" || taskName === currentTask.name) return;
+    //gestion d'érreur pour éviter de recharger la totalement la page
+    try {
       await api.patch(`/tasks/${currentTask.id}`, { name: taskName });
-      handleFetchTasks(); 
-      setCurrentTask(null); 
-      setTaskName(''); 
-    }  
-  }
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === currentTask.id ? { ...task, name: taskName } : task
+        )
+      );
+      setCurrentTask(null);
+      setTaskName('');
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour :", error);
+    }
+  };
 
   const handleEdit = (task: Task) => {
     if (currentTask?.id === task.id) {
@@ -58,12 +66,28 @@ const TodoPage = () => {
   }, []);
 
   return (
-    <Container>
+    <Container sx={{
+      background: '#cccfff',
+      border: '2px #ffff', 
+      borderRadius: 2, 
+      boxShadow: 3, 
+      padding: 3, 
+      maxWidth: 'lg', 
+      marginTop: 5, 
+    }}>
       <Box display="flex" justifyContent="center" mt={5}>
         <Typography variant="h2">HDM Todo List</Typography>
       </Box>
 
-      <Box justifyContent="center" mt={5} flexDirection="column">
+      <Box justifyContent="center" mt={5} flexDirection="column" sx={{
+      background: '#eeeeee',
+      border: '2px #ffff', 
+      borderRadius: 2, 
+      boxShadow: 3, 
+      padding: 3, 
+      maxWidth: 'lg', 
+      marginTop: 5, 
+    }}>
         {tasks.map((task) => (
           <Box display="flex" justifyContent="center" alignItems="center" mt={2} gap={1} width="100%" key={task.id}>
             <TextField
@@ -104,7 +128,7 @@ const TodoPage = () => {
             fullWidth
             sx={{ maxWidth: 350 }}
           />
-          <Button variant="outlined" onClick={handleAddTask} sx={{ marginLeft: 2 }}>
+          <Button variant="outlined" onClick={handleAddTask} sx={{ marginLeft: 2, background : "#aea6f8", border: "none", borderRadius: 5, fontWeight: "bold", fontFamily: "cursive"}}>
             Ajouter une tâche
           </Button>
         </Box>
